@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from agents import Agent,Runner,set_tracing_disabled,function_tool
 from agents.extensions.models.litellm_model import LitellmModel
 import asyncio
-
+from pydantic import BaseModel
+from typing import List,Any
 load_dotenv()
 set_tracing_disabled(True)
 apikey=os.getenv("GEMINI_API_KEY")
@@ -67,9 +68,20 @@ Use JobAgent only for job suggestions.
     handoffs=[careeragent,JobAgent,SkillBuildingAgent]
 )
 
-async def main(Input):
-    result= await Runner.run(CareerMentorAgent,input=Input)
-    print(result.final_output)
+class CONTEXT(BaseModel):
+   hobbies:list[Any]=[]
+   choice:list[Any]=[]
 
 
-asyncio.run(main(input("Ask Question: ")))
+   
+async def main():
+    Input=str(input("How can i help You ?"))
+    while True :
+     
+     
+     result= await Runner.run(CareerMentorAgent,input=Input,context=CONTEXT)
+     print(result.final_output)
+     Input=str(input("Answer:"))
+
+
+asyncio.run(main())
